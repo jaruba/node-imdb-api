@@ -67,6 +67,17 @@ export class Episode {
 }
 
 export class Movie {
+    public tomatoMeter: string;
+    public tomatoImage: string;
+    public tomatoRating: string;
+    public tomatoReviews: string;
+    public tomatoFresh: string;
+    public tomatoRotten: string;
+    public tomatoConsensus: string;
+    public tomatoUserMeter: string;
+    public tomatoUserRating: string;
+    public tomatoUserReviews: string;
+    public tomatoURL: string;
     public imdbid: string;
     public imdburl: string;
     public genres: string;
@@ -107,6 +118,8 @@ export class Movie {
                 this[trans_table.get(attr)] = obj[attr];
             } else if (obj.hasOwnProperty(attr)) {
                 this[attr.toLowerCase()] = obj[attr];
+            } else if (attr.indexOf("tomato") == 0) {
+                this[attr] = obj[attr];
             }
         }
 
@@ -127,6 +140,7 @@ export class TVShow extends Movie {
         this.start_year = parseInt(years[0]) ? parseInt(years[0]) : null;
         this.end_year = parseInt(years[1]) ? parseInt(years[1]) : null;
         this.totalseasons = parseInt(this["totalseasons"]);
+        
     }
 
     public episodes(cb?: (err: Error, data: Episode[]) => any) {
@@ -138,7 +152,7 @@ export class TVShow extends Movie {
 
         let funcs = [];
         for (let i = 1; i <= tvShow.totalseasons; i++) {
-            funcs.push(rp({"qs": {"i": tvShow.imdbid, "r": "json", "Season": i}, "json": true, "url": omdbapi}));
+            funcs.push(rp({"qs": {"i": tvShow.imdbid, tomatoes: "true", "r": "json", "Season": i}, "json": true, "url": omdbapi}));
         }
 
         let prom = Promise.all(funcs)
@@ -188,14 +202,14 @@ export class ImdbError {
 
 export function getReq(req: MovieRequest, cb?: (err: Error, data: Movie | Episode) => any) {
     let responseData = "";
-    let qs = {plot: "full", r: "json", y: req.year};
+    let qs = {plot: "full", r: "json", y: req.year, tomatoes: "true"};
 
     if (req.name) {
         qs["t"] = req.name;
     } else if (req.id) {
         qs["i"] = req.id;
     }
-
+    
     let prom = rp({"qs": qs, url: omdbapi, json: true}).then(function(data: OmdbMovie | OmdbError) {
         let ret: Movie | Episode;
         if (isError(data)) {
