@@ -1,6 +1,6 @@
 {
   "author": "William Orr <will@worrbase.com> (http://worrbase.com/)",
-  "name": "imdb-api",
+  "name": "node-imdb-api",
   "description": "Queries unofficial imdb APIs to get movie and television information from imdb",
   "version": "2.2.1",
   "main": "lib/imdb.js",
