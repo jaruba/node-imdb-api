@@ -114,12 +114,30 @@ export class Movie {
                 this.released = new Date(obj[attr]);
             } else if (attr === "Rating") {
                 this[attr.toLowerCase()] = parseFloat(obj[attr]);
-            } else if (obj.hasOwnProperty(attr) && trans_table.get(attr) !== undefined) {
+            } else if (attr === "Ratings") {
+				if ((!this['tomatoMeter'] || this['tomatoMeter'] == 'N/A') && obj['Ratings'] && obj['Ratings'].length) {
+					var that = {};
+					var foundSomething = obj['Ratings'].some(function(ratingEl) {
+						if (ratingEl['Source'] == 'Rotten Tomatoes' && ratingEl['Value'] && ratingEl['Value'] != 'N/A') {
+							that['tomatoMeter'] = ratingEl['Value'];
+							var meter = parseInt(that['tomatoMeter']);
+							that['tomatoImage'] = meter > 84 ? 'certified' : meter > 49 ? 'fresh' : 'rotten';
+							return true;
+						}
+					})
+					if (foundSomething) {
+						this['tomatoMeter'] = that['tomatoMeter'];
+						this['tomatoImage'] = that['tomatoImage'];
+					}
+				}
+			} else if (obj.hasOwnProperty(attr) && trans_table.get(attr) !== undefined) {
                 this[trans_table.get(attr)] = obj[attr];
             } else if (obj.hasOwnProperty(attr)) {
                 this[attr.toLowerCase()] = obj[attr];
             } else if (attr.indexOf("tomato") == 0) {
-                this[attr] = obj[attr];
+				if (!this[attr]) {
+					this[attr] = obj[attr];
+				}
             }
         }
 
