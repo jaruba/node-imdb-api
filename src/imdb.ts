@@ -170,7 +170,7 @@ export class TVShow extends Movie {
 
         let funcs = [];
         for (let i = 1; i <= tvShow.totalseasons; i++) {
-            funcs.push(rp({"qs": {"i": tvShow.imdbid, tomatoes: "true", "r": "json", "Season": i}, "json": true, "url": omdbapi}));
+            funcs.push(rp({"qs": {"i": tvShow.imdbid, "tomatoes": "true", "r": "json", "Season": i, "apikey": process.env["omdb_key"]}, "json": true, "url": omdbapi}));
         }
 
         let prom = Promise.all(funcs)
@@ -227,6 +227,10 @@ export function getReq(req: MovieRequest, cb?: (err: Error, data: Movie | Episod
     } else if (req.id) {
         qs["i"] = req.id;
     }
+	
+	if (process.env["omdb_key"]) {
+		qs["apikey"] = process.env["omdb_key"]
+	}
     
     let prom = rp({"qs": qs, url: omdbapi, json: true}).then(function(data: OmdbMovie | OmdbError) {
         let ret: Movie | Episode;
